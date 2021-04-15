@@ -18,18 +18,19 @@ main (int argc, char **argv)
 
   int x = 0, head = 0, z;
   int fd;
-  int byte = 1;
+//  int byte = 1;
   FILE *ffile;
+  char filename[256];
 
   printf
     ("UPX! Packed Binary un-corruptor v1.0\n\n\nAkamai SIRT\n\n\nReading from file %s \n",
      argv[1]);
   fd = open (argv[1], O_RDONLY);
-  while (byte)
+  while (read (fd, &data[total], 1))
     {
-      byte = read (fd, &data[x], 1);
+  //    byte = read (fd, &data[x], 1);
 //printf("Location : Byte:%.2x\n",c);
-      x++;
+//      x++;
       total++;
     }
   close (fd);
@@ -76,22 +77,20 @@ main (int argc, char **argv)
   printf("%ld\n",header);
   printf("%ld\n",size);
 
+printf("Correcting Header.... \n");
   for (x = 0; x < 4; x++) {
           //copy bytes from the size position over the nulled out p_info header
 	  data[(header+4)+x] = data[size+x];
 	  data[(header+8)+x] = data[size+x];
   }
-printf("Corrected Header \n");
 for (x = 0; x<=header+4;x++) {
 	printf("%.2x",data[x]);
 }	
 
-
-  printf ("\nTotal bytes read %d\n", total);
-
-
- ffile = fopen("newbin","wb");
+ snprintf(filename,249,"%s.fixed",argv[1]);
+ ffile = fopen(filename,"wb");
  fwrite(&data,total,1,ffile);
  fclose(ffile);
+ printf ("\nTotal bytes read %d\n Writing file %s", total,filename);
 
 }
