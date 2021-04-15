@@ -10,8 +10,4 @@ upx_dec	: upx_dec.o
 
 clean	: 
 	@echo "Cleaning up src files."
-	@rm -f src/*.o $(ARCH)-$(SYS)/httpd
- 	
-arch	:
-	@echo "Making archive."
-	@./lcs
+	@rm -f *.o upx_dec

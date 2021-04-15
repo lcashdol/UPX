@@ -19,9 +19,10 @@ main (int argc, char **argv)
   int x = 0, head = 0, z;
   int fd;
   int byte = 1;
+  FILE *ffile;
 
   printf
-    ("UPX Packed Binary Decorruptor v0.1\n\n\nAkamai SIRT\n\n\nReading from file %s \n",
+    ("UPX! Packed Binary un-corruptor v1.0\n\n\nAkamai SIRT\n\n\nReading from file %s \n",
      argv[1]);
   fd = open (argv[1], O_RDONLY);
   while (byte)
@@ -89,8 +90,8 @@ for (x = 0; x<=header+4;x++) {
   printf ("\nTotal bytes read %d\n", total);
 
 
-FILE *ffile;
  ffile = fopen("newbin","wb");
  fwrite(&data,total,1,ffile);
+ fclose(ffile);
 
 }
