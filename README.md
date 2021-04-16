@@ -1,7 +1,7 @@
 # UPX
 
 Some C code to repair corrupt p_info header on UPX! packed malware.
-
+```
 larry@0v3rfl0w:~/code/UPX$ file 496
 496: ELF 32-bit LSB executable, MIPS, MIPS-I version 1 (SYSV), statically linked, stripped
 larry@0v3rfl0w:~/code/UPX$ upx -d 496
@@ -50,3 +50,4 @@ UPX 3.91        Markus Oberhumer, Laszlo Molnar & John Reiser   Sep 30th 2013
     356908 <-    135008   37.83%  linux/mipsel   496.fixed
 
 Unpacked 1 file.
+```
