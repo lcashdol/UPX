@@ -28,14 +28,12 @@ main (int argc, char **argv)
   FILE *ffile;
   char filename[256];
 
-
-
   if (argc < 2)
     print_usage (argv[0]);
 
 
   printf
-    ("UPX! Packed Binary un-corruptor v1.0\n\n\nAkamai SIRT\n\n\nReading from file %s \n",
+    ("UPX! Packed Binary un-corruptor v1.0\n\n\n4/15/2021 Larry Cashdollar - Akamai SIRT\n\n\nReading from file %s \n",
      argv[1]);
   fd = open (argv[1], O_RDONLY);
   if (fd < 0)
@@ -94,6 +92,8 @@ main (int argc, char **argv)
       data[(header + 4) + x] = data[size + x];
       data[(header + 8) + x] = data[size + x];
     }
+
+  //print out fixed header
   for (x = 1; x <= header + 16; x++)
     {
       printf ("%.2x ", data[x]);
@@ -103,9 +103,15 @@ main (int argc, char **argv)
 
   snprintf (filename, 249, "%s.fixed", argv[1]);
   ffile = fopen (filename, "wb");
+
+  if (!ffile) {
+      fprintf(stderr, "Error %s %s\n", filename, strerror( errno ));
+      exit (0);
+  }
+
+  printf ("\nTotal bytes read %d\n\nWriting file %s\n", total, filename);
   fwrite (&data, total, 1, ffile);
   fclose (ffile);
-  printf ("\nTotal bytes read %d\n\nWriting file %s\n", total, filename);
   return 0;
 }
 
