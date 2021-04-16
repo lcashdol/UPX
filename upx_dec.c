@@ -12,10 +12,6 @@
 
 
 extern int errno;
-unsigned char data[2560000];
-long int size;
-long int header;
-int total = 0;
 
 void print_usage (char *arg);
 
@@ -23,10 +19,12 @@ int
 main (int argc, char **argv)
 {
 
-  int x = 0, head = 0, z;
-  int fd;
-  FILE *ffile;
-  char filename[256];
+unsigned char data[2560000];
+long int size=0;
+long int header=0;
+int total = 0, x = 0, head = 0, z, fd;
+FILE *ffile;
+char filename[256];
 
   if (argc < 2)
     print_usage (argv[0]);
