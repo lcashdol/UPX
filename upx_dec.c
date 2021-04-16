@@ -57,14 +57,14 @@ main (int argc, char **argv)
 
 	  if (head == 3)
 	    {
-	      printf ("UPX! p_filesize\n");
+	      printf ("UPX! p_filesize :");
 
 	      size = x+24;
 // position header 1 is 8 bytes
 // position header 3 is 20 bytes
 	      for (z = 0; z < 4; z++)
 		{
-		  printf ("%.2x", data[(x + 24) + z]);
+		  printf ("0x%.2x ", data[(x + 24) + z]);
                   //size[z] = data[(x+24)+z];
 		}
 	      printf ("\n");
@@ -74,8 +74,8 @@ main (int argc, char **argv)
 //printf("%x",data[x]);
     }
 //printf("\n");
-  printf("%ld\n",header);
-  printf("%ld\n",size);
+  printf("Header Position:%ld\n",header);
+  printf("File Size Position:%ld\n",size);
 
 printf("Correcting Header.... \n");
   for (x = 0; x < 4; x++) {
@@ -83,14 +83,15 @@ printf("Correcting Header.... \n");
 	  data[(header+4)+x] = data[size+x];
 	  data[(header+8)+x] = data[size+x];
   }
-for (x = 0; x<=header+4;x++) {
-	printf("%.2x",data[x]);
+for (x = 1; x<=header+16;x++) {
+	printf("%.2x ",data[x]);
+if ((x%22) == 0 && x  != 0 ) printf("\n");
 }	
 
  snprintf(filename,249,"%s.fixed",argv[1]);
  ffile = fopen(filename,"wb");
  fwrite(&data,total,1,ffile);
  fclose(ffile);
- printf ("\nTotal bytes read %d\n Writing file %s", total,filename);
-
+ printf ("\nTotal bytes read %d\n\nWriting file %s\n", total,filename);
+ return(0);
 }
