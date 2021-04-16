@@ -12,15 +12,21 @@ long int size;
 long int header;
 int total = 0;
 
+void print_usage(char *arg);
+
 int
 main (int argc, char **argv)
 {
 
   int x = 0, head = 0, z;
   int fd;
-//  int byte = 1;
   FILE *ffile;
   char filename[256];
+
+
+
+if (argc < 2) print_usage(argv[0]);
+  
 
   printf
     ("UPX! Packed Binary un-corruptor v1.0\n\n\nAkamai SIRT\n\n\nReading from file %s \n",
@@ -28,9 +34,6 @@ main (int argc, char **argv)
   fd = open (argv[1], O_RDONLY);
   while (read (fd, &data[total], 1))
     {
-  //    byte = read (fd, &data[x], 1);
-//printf("Location : Byte:%.2x\n",c);
-//      x++;
       total++;
     }
   close (fd);
@@ -49,7 +52,6 @@ main (int argc, char **argv)
 	      for (z = 0; z < 4; z++)
 		{
 		  printf ("%.2x", data[(x + 8) + z]);
-		 // header[z] = (x + 8)+z;
 		}
 	      printf ("\n");
 
@@ -65,15 +67,11 @@ main (int argc, char **argv)
 	      for (z = 0; z < 4; z++)
 		{
 		  printf ("0x%.2x ", data[(x + 24) + z]);
-                  //size[z] = data[(x+24)+z];
 		}
 	      printf ("\n");
 	    }
 	}
-//printf("%x %c %d \n",data[x],data[x],x);
-//printf("%x",data[x]);
     }
-//printf("\n");
   printf("Header Position:%ld\n",header);
   printf("File Size Position:%ld\n",size);
 
@@ -94,4 +92,10 @@ if ((x%22) == 0 && x  != 0 ) printf("\n");
  fclose(ffile);
  printf ("\nTotal bytes read %d\n\nWriting file %s\n", total,filename);
  return(0);
+}
+
+
+void print_usage(char *arg) {
+printf("Usage: %s filename\n",arg);
+exit(0);
 }
