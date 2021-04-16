@@ -4,15 +4,20 @@
 #include <fcntl.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
+#include <errno.h>
 
 /*https://vcodispot.com/corrupted-upx-packed-elf-repair/*/
 /*https://cujo.com/upx-anti-unpacking-techniques-in-iot-malware/*/
+
+
+extern int errno;
 unsigned char data[2560000];
 long int size;
 long int header;
 int total = 0;
 
-void print_usage(char *arg);
+void print_usage (char *arg);
 
 int
 main (int argc, char **argv)
@@ -25,13 +30,20 @@ main (int argc, char **argv)
 
 
 
-if (argc < 2) print_usage(argv[0]);
-  
+  if (argc < 2)
+    print_usage (argv[0]);
+
 
   printf
     ("UPX! Packed Binary un-corruptor v1.0\n\n\nAkamai SIRT\n\n\nReading from file %s \n",
      argv[1]);
   fd = open (argv[1], O_RDONLY);
+  if (fd < 0)
+    {
+     // fprintf (stderr,"Error opening file %s\n Quitting. \n", argv[1]);
+      fprintf(stderr, "Error %s %s\n", argv[1], strerror( errno ));
+      exit (0);
+    }
   while (read (fd, &data[total], 1))
     {
       total++;
@@ -48,7 +60,7 @@ if (argc < 2) print_usage(argv[0]);
 
 	  if (head == 1)
 	    {
-		    header = x+8;
+	      header = x + 8;
 	      for (z = 0; z < 4; z++)
 		{
 		  printf ("%.2x", data[(x + 8) + z]);
@@ -61,7 +73,7 @@ if (argc < 2) print_usage(argv[0]);
 	    {
 	      printf ("UPX! p_filesize :");
 
-	      size = x+24;
+	      size = x + 24;
 // position header 1 is 8 bytes
 // position header 3 is 20 bytes
 	      for (z = 0; z < 4; z++)
@@ -72,30 +84,36 @@ if (argc < 2) print_usage(argv[0]);
 	    }
 	}
     }
-  printf("Header Position:%ld\n",header);
-  printf("File Size Position:%ld\n",size);
+  printf ("Header Position:%ld\n", header);
+  printf ("File Size Position:%ld\n", size);
 
-printf("Correcting Header.... \n");
-  for (x = 0; x < 4; x++) {
-          //copy bytes from the size position over the nulled out p_info header
-	  data[(header+4)+x] = data[size+x];
-	  data[(header+8)+x] = data[size+x];
-  }
-for (x = 1; x<=header+16;x++) {
-	printf("%.2x ",data[x]);
-if ((x%22) == 0 && x  != 0 ) printf("\n");
-}	
+  printf ("Correcting Header.... \n");
+  for (x = 0; x < 4; x++)
+    {
+      //copy bytes from the size position over the nulled out p_info header
+      data[(header + 4) + x] = data[size + x];
+      data[(header + 8) + x] = data[size + x];
+    }
+  for (x = 1; x <= header + 16; x++)
+    {
+      printf ("%.2x ", data[x]);
+      if ((x % 22) == 0 && x != 0)
+	printf ("\n");
+    }
 
- snprintf(filename,249,"%s.fixed",argv[1]);
- ffile = fopen(filename,"wb");
- fwrite(&data,total,1,ffile);
- fclose(ffile);
- printf ("\nTotal bytes read %d\n\nWriting file %s\n", total,filename);
- return(0);
+  snprintf (filename, 249, "%s.fixed", argv[1]);
+  ffile = fopen (filename, "wb");
+  fwrite (&data, total, 1, ffile);
+  fclose (ffile);
+  printf ("\nTotal bytes read %d\n\nWriting file %s\n", total, filename);
+  return 0;
 }
 
 
-void print_usage(char *arg) {
-printf("Usage: %s filename\n",arg);
-exit(0);
+void
+print_usage (char *arg)
+{
+  printf ("To attempt to repair a corruptted UPX packed malware sample.\n\n");
+  printf ("Usage: %s filename\n", arg);
+  exit (0);
 }
