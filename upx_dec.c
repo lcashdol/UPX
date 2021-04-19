@@ -29,7 +29,7 @@ char filename[256];
     print_usage (argv[0]);
 
   printf
-    ("######################################################################################################\n# UPX! Packed Binary un-corruptor v1.0\n\n\n4/15/2021 Larry Cashdollar - Akamai SIRT\n\n\nReading from file %s \n",
+    ("######################################################################################################\n# UPX! Packed Binary un-corruptor v1.0\n\n\n4/15/2021 Larry Cashdollar\n\n\nReading from file %s \n",
      argv[1]);
 
 if (stat(argv[1], &stats) == 0)
