@@ -46,7 +46,7 @@ UPX 3.91        Markus Oberhumer, Laszlo Molnar & John Reiser   Sep 30th 2013
 
         File size         Ratio      Format      Name
    --------------------   ------   -----------   -----------
-    356908 <-    135008   37.83%  linux/mipsel   496.fixed
+    356908 <-    135008   37.83%  linux/mipsel   Mozi.m.fixed
 
 Unpacked 1 file.
 
