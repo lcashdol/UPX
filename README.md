@@ -2,48 +2,44 @@
 
 Some C code to repair corrupt p_info header on UPX! packed malware.
 ```
-larry@0v3rfl0w:~/code/UPX$ ./upx_dec 496
-######################################################################################################
-# UPX! Packed Binary un-corruptor v1.0
-
-
-4/15/2021 Larry Cashdollar - Akamai SIRT
-
-
-Reading from file 496 
++=====================================================================================+
+|                       UPX! Corrupt Header Fixer v1.0                                |
+|                                                                                     |
+|                       Larry W. Cashdollar, 4/20/2021                                |
+|                                                                                     |
++=====================================================================================+
+Reading File :Mozi.m
 Found UPX! Header Position at 120 00000000
-Found UPX! Header Position at 134962 
-Found UPX! Header Position at 134972 
-UPX! p_filesize :0x10 0x6f 0x05 0x00 
+Found UPX! Header Position at 108763 
+Found UPX! Header Position at 108772 
+UPX! p_filesize :0x00 0x04 0x0f 0x7c 
 Header Position:128
-File Size Position:134996
+File Size Position:108796
 Correcting Header.... 
-45 4c 46 01 01 01 00 00 00 00 00 00 00 00 00 02 00 08 00 01 00 00 
-00 c8 03 42 00 34 00 00 00 00 00 00 00 07 10 00 00 34 00 20 00 02 
-00 28 00 00 00 00 00 01 00 00 00 00 00 00 00 00 00 40 00 00 00 40 
-00 ee 0d 02 00 ee 0d 02 00 05 00 00 00 00 00 01 00 01 00 00 00 00 
-00 00 00 00 00 43 00 00 00 43 00 00 00 00 00 68 ba 08 00 06 00 00 
-00 00 00 01 00 8d c0 e9 b2 55 50 58 21 30 0a 0d 1e 00 00 00 00 10 
-6f 05 00 10 6f 05 00 94 00 00 00 5d 
-Total bytes read 135008
+45 4c 46 01 02 01 00 00 00 00 00 00 00 00 00 00 02 00 08 00 00 00 
+01 00 11 9d e8 00 00 00 34 00 00 00 00 00 00 10 07 00 34 00 20 00 
+02 00 28 00 00 00 00 00 00 00 01 00 00 00 00 00 10 00 00 00 10 00 
+00 00 01 a7 a3 00 01 a7 a3 00 00 00 05 00 01 00 00 00 00 00 01 00 
+00 de 24 00 49 de 24 00 49 de 24 00 00 00 00 00 00 00 00 00 00 00 
+06 00 01 00 00 c8 cd a5 93 55 50 58 21 09 dc 0d 89 00 00 00 00 00 
+04 0f 7c 00 04 0f 7c 00 00 00 94 00 
+Total bytes read 108808
 
-Writing file 496.fixed
+Writing file Mozi.m.fixed
 0.00 %
-7.41 %
-14.81 %
-22.22 %
-29.63 %
-37.03 %
-44.44 %
-51.85 %
-59.26 %
-66.66 %
-74.07 %
-81.48 %
-88.88 %
-96.29 %
+9.19 %
+18.38 %
+27.57 %
+36.76 %
+45.95 %
+55.14 %
+64.33 %
+73.52 %
+82.71 %
+91.91 %
 Done
-larry@0v3rfl0w:~/code/UPX$ upx -d 496.fixed 
+
+larry@0v3rfl0w:~/code/UPX$ upx -d Mozi.m.fixed 
                        Ultimate Packer for eXecutables
                           Copyright (C) 1996 - 2013
 UPX 3.91        Markus Oberhumer, Laszlo Molnar & John Reiser   Sep 30th 2013
