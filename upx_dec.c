@@ -7,33 +7,38 @@
 #include <stdio.h>
 #include <errno.h>
 
-/*https://vcodispot.com/corrupted-upx-packed-elf-repair/*/
-/*https://cujo.com/upx-anti-unpacking-techniques-in-iot-malware/*/
+
+
+/*Code here is based on research published by these fellow researcher's articles
+
+  https://vcodispot.com/corrupted-upx-packed-elf-repair
+  https://cujo.com/upx-anti-unpacking-techniques-in-iot-malware*/
 
 extern int errno;
 
 void print_usage (char *arg);
-void print_banner(char *arg);
+void print_banner (char *arg);
+#define MAXWIDTH 28
 
 int
 main (int argc, char **argv)
 {
   struct stat stats;
-  unsigned char *data;
+  unsigned char *data = NULL;
+  unsigned char p_info[5], f_size[5];
   long int size = 0;
   long int header = 0;
-  int total = 0, x = 0, head = 0, z = 0, fd = 0, fout = 0;
+  int total = 0, x = 0, head = 0, z = 0, fd = 0, ret = 0, fout = 0, compare =
+    0;
   char filename[256];
 
   if (argc < 2)
     print_usage (argv[0]);
 
-   print_banner(argv[1]);
+  print_banner (argv[1]);
   if (stat (argv[1], &stats) == 0)
     {
-
-      data = malloc (stats.st_size * sizeof (char));
-
+      data = malloc ((stats.st_size + 1) * sizeof (char));
     }
   else
     {
@@ -45,8 +50,10 @@ main (int argc, char **argv)
   if (fd < 0)
     {
       fprintf (stderr, "Error %s %s\n", argv[1], strerror (errno));
+      free (data);
       exit (0);
     }
+  // Read each byte into our data structure
   while (read (fd, &data[total], 1))
     {
       total++;
@@ -59,9 +66,8 @@ main (int argc, char **argv)
       if (DEBUG)
 	{
 	  printf ("%.2x ", data[x]);
-	  if ((x % 22) == 0 && x != 0)
+	  if ((x % MAXWIDTH) == 0 && x != 0)
 	    printf ("\n");
-
 	}
       if (data[x] == 0x55 && data[x + 1] == 0x50 && data[x + 2] == 0x58
 	  && data[x + 3] == 0x21)
@@ -109,8 +115,44 @@ main (int argc, char **argv)
 	    }
 	}
     }
+
+
+  if (head == 0)
+    {
+      printf
+	("No UPX! Headers found.\nMaybe this binary isn't packed with UPX.\n");
+      free (data);
+      exit (0);
+    }
+
   printf ("Header Position:%ld\n", header);
   printf ("File Size Position:%ld\n", size);
+
+  for (x = 0; x < 4; x++)
+    {
+      // lets check these vaules out first
+      p_info[x] = data[(header + 4) + x];
+      f_size[x] = data[size + x];
+    }
+  f_size[4] = '\0';
+  p_info[4] = '\0';
+// compare values to see if they differ
+
+  for (z = 0; z < 4; z++)
+    {
+      printf ("0x%.2x compare 0x%.2x \n", f_size[z], p_info[z]);
+      if (f_size[z] == p_info[z])
+	compare++;
+    }
+
+  if (compare == 4)
+    {
+      printf ("File doesn't appear to be corrupted\n");
+      free (data);
+      exit (0);
+    }
+
+  printf ("\n");
 
   printf ("Correcting Header.... \n");
   for (x = 0; x < 4; x++)
@@ -124,7 +166,7 @@ main (int argc, char **argv)
   for (x = 1; x <= header + 16; x++)
     {
       printf ("%.2x ", data[x]);
-      if ((x % 22) == 0 && x != 0)
+      if ((x % MAXWIDTH) == 0 && x != 0)
 	printf ("\n");
     }
 
@@ -134,6 +176,8 @@ main (int argc, char **argv)
   if (!fout)
     {
       fprintf (stderr, "Error %s %s\n", filename, strerror (errno));
+      close (fout);
+      free (data);
       exit (0);
     }
 
@@ -141,14 +185,18 @@ main (int argc, char **argv)
   total = 0;
   while (total < stats.st_size)
     {
-      write (fout, &data[total], 1);
-      float percent = 0.0, t = total, s = stats.st_size;
-      percent = (t / s) * 100;
-      if (total % 10000 == 0)
-	printf ("%.2f %%\n", percent);
+      ret = write (fout, &data[total], 1);
+      if (ret < 0)
+	{
+	  fprintf (stderr, "Error in writing file !\n");
+	  fprintf (stderr, "Error %s %s\n", filename, strerror (errno));
+	  close (fout);
+	  free (data);
+	  exit (0);
+	}
       total++;
     }
-  printf ("Done\n");
+  printf (" Done\n");
   close (fout);
   free (data);
   return 0;
@@ -164,14 +212,22 @@ print_usage (char *arg)
 }
 
 
+void
+print_banner (char *arg)
+{
 
-void print_banner(char *arg) {
-
-printf("+=====================================================================================+\n");
-printf("|                       UPX! Corrupt Header Fixer v1.0                                |\n");
-printf("|                                                                                     |\n");
-printf("|                       Larry W. Cashdollar, 4/20/2021                                |\n");
-printf("|                                                                                     |\n");
-printf("+=====================================================================================+\n");
-printf("Reading File :%s\n",arg);
+  printf
+    ("+=====================================================================================+\n");
+  printf
+    ("|                       UPX! Corrupt Header Fixer v1.0                                |\n");
+  printf
+    ("|                                                                                     |\n");
+  printf
+    ("|                       Larry W. Cashdollar, 4/20/2021                                |\n");
+  printf
+    ("|                                                                                     |\n");
+  printf
+    ("+=====================================================================================+\n");
+  printf ("Reading File :%s\n", arg);
 }
+

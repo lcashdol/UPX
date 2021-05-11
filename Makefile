@@ -1,6 +1,6 @@
-MAKE=gmake
+MAKE=make
 CC=gcc
-CFLAGS = -Wall -ggdb -O2 -D DEBUG=0 $(DEFS)
+CFLAGS = -Wall -ggdb -O2 -D DEBUG=0 
 
 all	: 
 	make 	upx_dec	
