@@ -3,7 +3,7 @@
 Some C code to repair corrupt p_info header on UPX! packed malware.
 
 
-![alt text](https://github.com/lcashdol/UPX/raw/master/images/upx_dec.jpg "upx_dec output")
+![alt text](https://github.com/lcashdol/UPX/raw/master/upx_dec.jpg "upx_dec output")
 
 
 
