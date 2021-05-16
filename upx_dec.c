@@ -18,7 +18,8 @@ extern int errno;
 
 void print_usage (char *arg);
 void print_banner (char *arg);
-#define MAXWIDTH 28
+#define MAXWIDTH 24
+#define COLOR "\033[1;33m"
 
 int
 main (int argc, char **argv)
@@ -167,9 +168,11 @@ main (int argc, char **argv)
   //print out fixed header
   for (x = 1; x <= header + 16; x++)
     {
+     if(x == (header+4)) printf(COLOR);//printf("\033[0;31m");
       printf ("%.2x ", data[x]);
       if ((x % MAXWIDTH) == 0 && x != 0)
 	printf ("\n");
+      if (x== (header +12)) printf("\033[0m");
     }
 
   snprintf (filename, 249, "%s.fixed", argv[1]);
@@ -183,7 +186,7 @@ main (int argc, char **argv)
       exit (0);
     }
 
-  printf ("\nTotal bytes read %d\n\nWriting file %s\n", total, filename);
+  printf ("\nTotal bytes read %d\n\nWriting file %s ->", total, filename);
   total = 0;
   while (total < stats.st_size)
     {
@@ -219,17 +222,17 @@ print_banner (char *arg)
 {
 
   printf
-    ("+=====================================================================================+\n");
+    ("+===========================================================================+\n");
   printf
-    ("|                       UPX! Corrupt Header Fixer v1.0                                |\n");
+    ("|                       UPX! Corrupt Header Fixer v1.0                      |\n");
   printf
-    ("|                                                                                     |\n");
+    ("|                                                                           |\n");
   printf
-    ("|                       Larry W. Cashdollar, 4/20/2021                                |\n");
+    ("|                       Larry W. Cashdollar, 4/20/2021                      |\n");
   printf
-    ("|                                                                                     |\n");
+    ("|                                                                           |\n");
   printf
-    ("+=====================================================================================+\n");
+    ("+===========================================================================+\n");
   printf ("Reading File :%s\n", arg);
 }
 
