@@ -123,7 +123,7 @@ main (int argc, char **argv)
   if (head < 3)
     {
       printf
-	("No UPX! Headers found.\nMaybe this binary isn't packed with UPX.\n");
+	("Missing required UPX Headers. Found %d.\n.\n",head);
       free (data);
       exit (0);
     }
