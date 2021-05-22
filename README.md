@@ -1,6 +1,7 @@
 # UPX Fixer
 
-Some C code to repair corrupt p_info header on UPX! packed malware.
+Some C code to repair corrupt p_info header on UPX! packed malware.  It fixes two variants I found that were pretty common. There are many other variants
+that have UPX headers either stripped, or null bytes injected to change offsets that this code does not work on.  
 
 ```
 $ make
