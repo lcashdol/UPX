@@ -243,7 +243,7 @@ print_banner (char *arg)
   printf
     ("+===========================================================================+\n");
   printf
-    ("|                       UPX! Corrupt Header Fixer v1.0                      |\n");
+    ("|                       UPX! Corrupt Header Fixer v1.1                      |\n");
   printf
     ("|                                                                           |\n");
   printf
