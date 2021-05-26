@@ -28,7 +28,7 @@ main (int argc, char **argv)
   unsigned char *data = NULL;
   unsigned char p_info[5], f_size[5];
   long int size = 0;
-  long int header = 0;
+  long int header = 0, missing_magic = 0;
   int total = 0, x = 0, head = 0, z = 0, fd = 0, ret = 0, fout = 0, compare =
     0;
   char filename[256];
@@ -46,8 +46,9 @@ main (int argc, char **argv)
       fprintf (stderr, "Error %s %s\n", argv[1], strerror (errno));
       exit (0);
     }
-   //initialize array.
-   for (x=0;x<=stats.st_size;x++) data[x] = 0;
+  //initialize array.
+  for (x = 0; x <= stats.st_size; x++)
+    data[x] = 0;
 
   fd = open (argv[1], O_RDONLY);
   if (fd < 0)
@@ -72,6 +73,21 @@ main (int argc, char **argv)
 	  if ((x % MAXWIDTH) == 0 && x != 0)
 	    printf ("\n");
 	}
+
+
+      if (data[x] == 0x59 && data[x + 1] == 0x54 && data[x + 2] == 0x53
+	  && data[x + 3] == 0x99) //look for UPX that has been replaced with YTS. 
+	{
+
+	  printf ("Found UPX corrupted header (YTS) fixing.\n");
+
+	  data[x] = 0x55;
+	  data[x + 1] = 0x50;
+	  data[x + 2] = 0x58;
+	  data[x + 3] = 0x21;
+	  missing_magic++;
+	}
+
       if (data[x] == 0x55 && data[x + 1] == 0x50 && data[x + 2] == 0x58
 	  && data[x + 3] == 0x21)
 	{
@@ -120,10 +136,9 @@ main (int argc, char **argv)
     }
 
 
-  if (head < 3)
+  if (head < 3 && missing_magic < 3)
     {
-      printf
-	("Missing required UPX Headers. Found %d.\n.\n",head);
+      printf ("Missing required UPX Headers. Found %d.\n.\n", head);
       free (data);
       exit (0);
     }
@@ -148,7 +163,7 @@ main (int argc, char **argv)
 	compare++;
     }
 
-  if (compare == 4)
+  if (compare == 4 && missing_magic < 3)
     {
       printf ("File doesn't appear to be corrupted\n");
       free (data);
@@ -156,23 +171,27 @@ main (int argc, char **argv)
     }
 
   printf ("\n");
-
-  printf ("Correcting Header.... \n");
-  for (x = 0; x < 4; x++)
+  if (missing_magic == 0)
     {
-      //copy bytes from the size position over the nulled out p_info header
-      data[(header + 4) + x] = data[size + x];
-      data[(header + 8) + x] = data[size + x];
+      printf ("Correcting Header.... \n");
+      for (x = 0; x < 4; x++)
+	{
+	  //copy bytes from the size position over the nulled out p_info header
+	  data[(header + 4) + x] = data[size + x];
+	  data[(header + 8) + x] = data[size + x];
+	}
     }
 
   //print out fixed header
   for (x = 1; x <= header + 16; x++)
     {
-     if(x == (header+4)) printf(COLOR);//printf("\033[0;31m");
+      if (x == (header + 4))
+	printf (COLOR);		//printf("\033[0;31m");
       printf ("%.2x ", data[x]);
       if ((x % MAXWIDTH) == 0 && x != 0)
 	printf ("\n");
-      if (x== (header +12)) printf("\033[0m");
+      if (x == (header + 12))
+	printf ("\033[0m");
     }
 
   snprintf (filename, 249, "%s.fixed", argv[1]);
@@ -235,4 +254,3 @@ print_banner (char *arg)
     ("+===========================================================================+\n");
   printf ("Reading File :%s\n", arg);
 }
-
