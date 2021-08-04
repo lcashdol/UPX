@@ -71,21 +71,21 @@ ent_inst.reverse()
 hlt = False
 call = False
 for inst in ent_inst:
-    if arch == "x86":
-        if inst['disasm'].find('hlt') != -1:
-            hlt = True
-        if inst['disasm'].find('call') != -1:
-            call = True
-        if inst['disasm'].find('push 0x') != -1:
-            if hlt == True and call == True:
-                #print("found main!")
+    if inst['disasm'].find('hlt') != -1:
+        hlt = True
+        continue
+    if hlt == True and inst['disasm'].find('call') != -1:
+        call = True
+        continue
+    if hlt == True and call == True:
+        if arch == "x86":
+            if inst['disasm'].find('push 0x') != -1:
                 main_addr = inst['disasm'].split(' ')[1].strip()
                 break
-    elif arch == "x86_64":
-        if inst['disasm'].find('mov rdi, 0x') != -1:
-            #print("found main!")
-            main_addr = inst['disasm'].split(',')[1].strip()
-            break
+        elif arch == "x86_64":
+            if inst['disasm'].find('mov rdi, 0x') != -1:
+                main_addr = inst['disasm'].split(',')[1].strip()
+                break
 
 ## generate our coredump and produce findings
 r2.cmd('dg '+coredump)
