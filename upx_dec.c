@@ -79,7 +79,18 @@ main (int argc, char **argv)
 	  && data[x + 3] == 0x99) //look for UPX that has been replaced with YTS. 
 	{
 
-	  printf ("Found UPX corrupted header (YTS) fixing.\n");
+	  printf ("Found UPX corrupted header (YTS.) fixing.\n");
+
+	  data[x] = 0x55;
+	  data[x + 1] = 0x50;
+	  data[x + 2] = 0x58;
+	  data[x + 3] = 0x21;
+	  missing_magic++;
+	}
+      if (data[x] == 0x55 && data[x + 1] == 0x55 && data[x + 2] == 0x55 && data[x + 3] == 0x21) //look for UPX that has been replaced with UUU!. 
+	{
+
+	  printf ("Found UPX corrupted header (UUU!) fixing.\n");
 
 	  data[x] = 0x55;
 	  data[x + 1] = 0x50;
@@ -163,7 +174,7 @@ main (int argc, char **argv)
 	compare++;
     }
 
-  if (compare == 4 && missing_magic < 3)
+  if (compare == 4 && missing_magic == 0)
     {
       printf ("File doesn't appear to be corrupted\n");
       free (data);
@@ -243,11 +254,11 @@ print_banner (char *arg)
   printf
     ("+===========================================================================+\n");
   printf
-    ("|                       UPX! Corrupt Header Fixer v1.1                      |\n");
+    ("|                       UPX! Corrupt Header Fixer v1.2                      |\n");
   printf
     ("|                                                                           |\n");
   printf
-    ("|                       Larry W. Cashdollar, 4/20/2021                      |\n");
+    ("|                       Larry W. Cashdollar, 2/8/2023                      |\n");
   printf
     ("|                                                                           |\n");
   printf
