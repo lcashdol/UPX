@@ -20,6 +20,7 @@ void print_usage (char *arg);
 void print_banner (char *arg);
 #define MAXWIDTH 24
 #define COLOR "\033[1;33m"
+#define CLEAR "\033[0m"
 
 int
 main (int argc, char **argv)
@@ -29,7 +30,7 @@ main (int argc, char **argv)
   unsigned char p_info[5], f_size[5];
   long int size = 0;
   long int header = 0, missing_magic = 0;
-  int total = 0, x = 0, head = 0, z = 0, fd = 0, ret = 0, fout = 0, compare =
+  int total = 0, x = 0,i=0, head = 0, z = 0, fd = 0, ret = 0, fout = 0, compare =
     0;
   char filename[256];
 
@@ -80,23 +81,41 @@ main (int argc, char **argv)
 	{
 
 	  printf ("Found UPX corrupted header (YTS.) fixing.\n");
+	  for (i=x;i<=(x+3);i++) {
+		  printf("%x",data[i]);
+	  }
+	  printf("->");
 
 	  data[x] = 0x55;
 	  data[x + 1] = 0x50;
 	  data[x + 2] = 0x58;
 	  data[x + 3] = 0x21;
 	  missing_magic++;
+	  for (i=x;i<=(x+3);i++) {
+		  printf("%x",data[i]);
+	  }
+	  printf("\n");
 	}
       if (data[x] == 0x55 && data[x + 1] == 0x55 && data[x + 2] == 0x55 && data[x + 3] == 0x21) //look for UPX that has been replaced with UUU!. 
 	{
 
 	  printf ("Found UPX corrupted header (UUU!) fixing.\n");
+	  printf(COLOR);
+	  for (i=x;i<=(x+3);i++) {
+		  printf("%c",data[i]);
+	  }
+	  printf(CLEAR);
+	  printf("->");
 
 	  data[x] = 0x55;
 	  data[x + 1] = 0x50;
 	  data[x + 2] = 0x58;
 	  data[x + 3] = 0x21;
 	  missing_magic++;
+	  for (i=x;i<=(x+3);i++) {
+		  printf("%c",data[i]);
+	  }
+	  printf("\n");
 	}
 
       if (data[x] == 0x55 && data[x + 1] == 0x50 && data[x + 2] == 0x58
@@ -202,7 +221,7 @@ main (int argc, char **argv)
       if ((x % MAXWIDTH) == 0 && x != 0)
 	printf ("\n");
       if (x == (header + 12))
-	printf ("\033[0m");
+	printf (CLEAR);
     }
 
   snprintf (filename, 249, "%s.fixed", argv[1]);
@@ -256,11 +275,7 @@ print_banner (char *arg)
   printf
     ("|                       UPX! Corrupt Header Fixer v1.2                      |\n");
   printf
-    ("|                                                                           |\n");
-  printf
     ("|                       Larry W. Cashdollar, 2/8/2023                      |\n");
-  printf
-    ("|                                                                           |\n");
   printf
     ("+===========================================================================+\n");
   printf ("Reading File :%s\n", arg);
