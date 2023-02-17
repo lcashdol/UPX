@@ -275,7 +275,7 @@ print_banner (char *arg)
   printf
     ("|                       UPX! Corrupt Header Fixer v1.2                      |\n");
   printf
-    ("|                       Larry W. Cashdollar, 2/8/2023                      |\n");
+    ("|                       Larry W. Cashdollar, 2/8/2023                       |\n");
   printf
     ("+===========================================================================+\n");
   printf ("Reading File :%s\n", arg);
