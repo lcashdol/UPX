@@ -18,7 +18,10 @@ extern int errno;
 
 void print_usage (char *arg);
 void print_banner (char *arg);
+void ascii2hex(char *av,char hex[]);
+
 #define MAXWIDTH 24
+#define HEX_BUFFER_SIZE 9
 #define COLOR "\033[1;33m"
 #define CLEAR "\033[0m"
 
@@ -34,8 +37,8 @@ main (int argc, char **argv)
     0;
   char filename[256];
 
-  if (argc < 2)
-    print_usage (argv[0]);
+/*  if (argc < 2)
+    print_usage (argv[0]);*/
 
   print_banner (argv[1]);
   if (stat (argv[1], &stats) == 0)
@@ -74,9 +77,39 @@ main (int argc, char **argv)
 	  if ((x % MAXWIDTH) == 0 && x != 0)
 	    printf ("\n");
 	}
+/*
+      char cheadr[16];
+      ascii2hex(argv[2],cheadr);
 
+      printf("[%d]\n",atoi(&cheadr[0]));
+    //  exit(0);*/
 
-      if (data[x] == 0x59 && data[x + 1] == 0x54 && data[x + 2] == 0x53
+      //if there is a 3rd argument convert it to hex and compare below
+if (argc > 3) {
+// lets just take the hex bytes off of the command line argument
+if (data[x] == atoi(argv[3]) && data[x + 1] == atoi(argv[4]) && data[x + 2] == atoi(argv[5]) 
+	  && data[x + 3] == atoi(argv[6])) //look for UPX that has been replaced with YTS. 
+	{
+
+	  printf ("Found UPX corrupted header user supplied hexidecimal fixing.\n");
+	  for (i=x;i<=(x+3);i++) {
+		  printf("%x",data[i]);
+	  }
+	  printf("->");
+
+	  data[x] = 0x55;
+	  data[x + 1] = 0x50;
+	  data[x + 2] = 0x58;
+	  data[x + 3] = 0x21;
+	  missing_magic++;
+	  for (i=x;i<=(x+3);i++) {
+		  printf("%x",data[i]);
+	  }
+	  printf("\n");
+} 
+}
+
+if (data[x] == 0x59 && data[x + 1] == 0x54 && data[x + 2] == 0x53
 	  && data[x + 3] == 0x99) //look for UPX that has been replaced with YTS. 
 	{
 
@@ -96,6 +129,7 @@ main (int argc, char **argv)
 	  }
 	  printf("\n");
 	}
+
       if (data[x] == 0x55 && data[x + 1] == 0x55 && data[x + 2] == 0x55 && data[x + 3] == 0x21) //look for UPX that has been replaced with UUU!. 
 	{
 
@@ -273,10 +307,22 @@ print_banner (char *arg)
   printf
     ("+===========================================================================+\n");
   printf
-    ("|                       UPX! Corrupt Header Fixer v1.2                      |\n");
+    ("|                       UPX! Corrupt Header Fixer v1.3                      |\n");
   printf
     ("|                       Larry W. Cashdollar, 2/8/2023                       |\n");
   printf
     ("+===========================================================================+\n");
   printf ("Reading File :%s\n", arg);
+}
+
+
+void ascii2hex(char *av,char hex[]) {
+	// we need to store these as an int not char.
+    const char *c = av;
+
+    for (int i = 0; i < 4; i++) {
+        snprintf(hex + (i * 2), 3, "%02x", (unsigned char) c[i]);
+    }
+    hex[HEX_BUFFER_SIZE - 1] = '\0';
+
 }
