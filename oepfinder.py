@@ -109,9 +109,24 @@ if not found_elf:
     r2.quit()
     sys.exit(1)
 
-## read its real entry point, then run forward to a breakpoint there --
-## this is the actual "fully unpacked, about to execute" point, however
-## many internal glue/trampoline hops the stub takes to reach it
+## Read the real entry point straight out of that header. This is a plain
+## memory *read*, not something requiring execution to have reached it --
+## the decompressed payload (including the bytes at its own entry point)
+## is already fully written to memory by this point (mmap+decompress+
+## mprotect all happened before the tail jump), so this is reliable even
+## though the debuggee hasn't physically executed there yet.
+##
+## KNOWN LIMITATION: we do NOT attempt to run the debuggee forward to this
+## address. r2 6.0.5's `dc`/`dcu` continue-to-breakpoint did not reliably
+## resume from wherever the single-step loop above left off in testing --
+## the debuggee ended up back at the stub's own tail-jump instruction
+## instead of stopping at the requested breakpoint, and a slower
+## workaround (polling for the clean ELF header after every syscall stop
+## instead of single-stepping) was impractically slow. So the OEP/main
+## reported below are correct (verified against the unpacked binary's own
+## readelf output), but the coredump is captured at the tail-jump landing
+## point -- the "unpacking is done" moment -- not at a state where
+## execution has actually reached OEP.
 elf_headers = r2.cmdj('pfj.elf_header')
 real_entry = None
 for elfhdr in elf_headers:
@@ -125,15 +140,9 @@ if real_entry is None:
     sys.exit(1)
 
 OEP = hex(real_entry)
-r2.cmd('db '+OEP)
-r2.cmd('dc')
-r2.cmd('db -'+OEP)
-rip_now = int(r2.cmd('dr?rip'), 16)
-if rip_now != real_entry:
-    print("warning: never actually reached the real entry point "+OEP+
-          " (stopped at "+hex(rip_now)+" instead) -- OEP below may be unreliable")
 
-## seek to OEP and grab 25 diasm instructions
+## seek (a read-only cursor move, doesn't require having executed there)
+## to OEP and grab 25 disasm instructions
 r2.cmd('s '+OEP)
 ent_inst = r2.cmdj('pdj 25')
 
@@ -163,12 +172,15 @@ for inst in ent_inst:
                 main_addr = inst['disasm'].split(',')[1].strip()
                 break
 
-## generate our coredump and produce findings
+## generate our coredump and produce findings (see the KNOWN LIMITATION
+## note above: this reflects the debuggee's actual state at the tail-jump
+## landing point, not at OEP itself)
 r2.cmd('dg '+coredump)
 
 print("\n============\n")
 print('coredump written to: ')
 print(coredump)
+print('(captured at the unpack-complete signal point, not at OEP itself -- see comments)')
 print("\nfunc addresses:")
 print('OEP @ '+OEP)
 if main_addr is None:

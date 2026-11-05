@@ -99,52 +99,21 @@ if not found_signal:
     sys.exit(1)
 print("found it!")
 
-## The address we just landed at is NOT reliably the real entry point --
-## on UPX 4.2.4/amd64 it's an internal glue/trampoline a few thousand
-## bytes before the binary's actual entry, confirmed by comparing against
-## the unpacked binary's own ELF header. A dump snapshotted there is
-## mid-finalization and won't run. So: find the clean ELF header now
-## sitting in memory, read its real `entry` field, and run forward to a
-## breakpoint there before dumping anything -- that's the actual "fully
-## unpacked, about to execute" point.
-print("locating real entry point...")
-dm_res = r2.cmdj('dmj')
-found_elf = False
-for seg in dm_res:
-    r2.cmd('s '+str(hex(seg['addr'])))
-    elf_hit = r2.cmd('/ ELF')
-    upx_hit = r2.cmd('/ UPX!')
-    if len(elf_hit) > 0 and len(upx_hit) == 0:
-        found_elf = True
-        break
-
-if not found_elf:
-    print("couldn't find a clean (non-UPX-tagged) ELF header in any mapped segment")
-    r2.quit()
-    sys.exit(1)
-
-entry_headers = r2.cmdj('pfj.elf_header')
-real_entry = None
-for elfhdr in entry_headers:
-    if elfhdr['name'] == 'entry':
-        real_entry = elfhdr['value']
-        break
-
-if real_entry is None:
-    print("couldn't read the real entry point from the clean ELF header")
-    r2.quit()
-    sys.exit(1)
-
-real_entry_hex = hex(real_entry)
-r2.cmd('db '+real_entry_hex)
-r2.cmd('dc')
-r2.cmd('db -'+real_entry_hex)
-rip_now = int(r2.cmd('dr?rip'), 16)
-if rip_now != real_entry:
-    print("warning: never actually reached the real entry point "+real_entry_hex+
-          " (stopped at "+hex(rip_now)+" instead) -- dump below may not run")
-else:
-    print("reached real entry point "+real_entry_hex+" -- dumping now")
+## KNOWN LIMITATION: the address we just landed at is NOT reliably the
+## real entry point -- on UPX 4.2.4/amd64 it's an internal glue/trampoline
+## a few thousand bytes before the binary's actual entry, confirmed by
+## comparing against the unpacked binary's own readelf output. Ideally
+## we'd run the debuggee forward to the real entry before dumping, but
+## r2 6.0.5's `dc`/`dcu` continue-to-breakpoint did not reliably resume
+## from wherever the single-step loop above left off in testing -- the
+## debuggee ended up back at the stub's own tail-jump instruction instead
+## of stopping at the requested breakpoint, and a slower workaround
+## (polling for a clean ELF header after every syscall stop instead of
+## single-stepping) was impractically slow. So this dump is captured at
+## the tail-jump landing point -- the "unpacking is done" signal -- not
+## at a state where execution has actually reached the real entry. It may
+## still be missing some final relocation/finalization work the stub's
+## own glue code would have done between here and the real entry.
 
 ## get memory map to identify segments
 print("getting memory map...")
