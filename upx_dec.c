@@ -448,9 +448,9 @@ print_banner (char *arg)
   printf
     ("+===========================================================================+\n");
   printf
-    ("|                       UPX! Corrupt Header Fixer v1.3                      |\n");
+    ("|                       UPX! Corrupt Header Fixer v1.4                      |\n");
   printf
-    ("|                       Larry W. Cashdollar, 2/8/2023                       |\n");
+    ("|                       Larry W. Cashdollar, 10/3/2026                       |\n");
   printf
     ("+===========================================================================+\n");
   printf ("Reading File :%s\n", arg);
